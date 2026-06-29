@@ -1,0 +1,5 @@
+export KAGGLE_API_TOKEN=KGAT_eed8663fdf2178bc1fc0a32329d2a423
+
+mkdir -p ~/.kaggle && echo KGAT_eed8663fdf2178bc1fc0a32329d2a423 > ~/.kaggle/access_token && chmod 600 ~/.kaggle/access_token
+
+kaggle competitions list
