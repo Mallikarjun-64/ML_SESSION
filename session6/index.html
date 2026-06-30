@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat vs Dog Classifier</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 350px; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input[type="file"] { display: none; }
+        .custom-file-upload { border: 2px dashed #007bff; color: #007bff; padding: 12px; border-radius: 8px; cursor: pointer; display: inline-block; width: 80%; margin-bottom: 15px; font-weight: bold; }
+        .custom-file-upload:hover { background: #e6f0ff; }
+        button { background: #28a745; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 88%; font-weight: bold; }
+        button:hover { background: #218838; }
+        #preview { max-width: 100%; max-height: 200px; margin-top: 15px; border-radius: 8px; display: none; }
+        #result { margin-top: 20px; font-size: 18px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Pet Classifier</h2>
+    
+    <label class="custom-file-upload">
+        <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+        Choose Image
+    </label>
+    
+    <img id="preview" alt="Image Preview">
+    <br><br>
+    <button onclick="uploadImage()">Classify Image</button>
+    
+    <div id="result"></div>
+</div>
+
+<script>
+    function previewImage(event) {
+        const preview = document.getElementById('preview');
+        preview.src = URL.createObjectURL(event.target.files[0]);
+        preview.style.display = 'inline-block';
+    }
+
+    async function uploadImage() {
+        const fileInput = document.getElementById('imageInput');
+        const resultDiv = document.getElementById('result');
+        
+        if (fileInput.files.length === 0) {
+            resultDiv.innerHTML = "<span style='color:red;'>Please select an image first!</span>";
+            return;
+        }
+
+        resultDiv.innerHTML = "Analyzing...";
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        try {
+            // Points to your FastAPI server running on port 8000
+            const response = await fetch("http://127.0.0.1:8000/predict", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            
+            resultDiv.innerHTML = `Prediction: <span style="color:#007bff;">${data.prediction.toUpperCase()}</span><br>
+                                   Confidence: ${(data.probability * 100).toFixed(2)}%`;
+        } catch (error) {
+            resultDiv.innerHTML = "<span style='color:red;'>Error connecting to server.</span>";
+        }
+    }
+</script>
+
+</body>
+</html>
